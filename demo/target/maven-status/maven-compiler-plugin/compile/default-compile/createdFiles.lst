@@ -1,0 +1,6 @@
+com\example\Vista\Login.class
+com\example\controller\AuthController.class
+com\example\repository\UserRepository.class
+com\example\Model\User.class
+com\example\service\UserService.class
+com\example\WallaportApplication.class
