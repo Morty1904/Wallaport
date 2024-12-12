@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.models.UserModel;
@@ -18,11 +19,13 @@ public class UserService {
     public ArrayList<UserModel> getUsers(){
         return(ArrayList<UserModel>) userRepository.findAll();
     }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public UserModel saveUser(UserModel user){
+    public UserModel saveUser(UserModel user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
-
     public Optional<UserModel> getById(Long id){
         return userRepository.findById(id);
     }
