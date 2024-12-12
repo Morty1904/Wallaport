@@ -50,6 +50,11 @@ Create a backend system that allows managing users, products, and messages, prov
 
 This project will be developed in iterative stages, focusing on the progressive delivery of complete functionalities.
 
+## Instalation Requirements
+
+1. MySQL installed locally or available on a cloud server.
+2. Java 17 or above.
+
 ## UML
 
 ![UML proyecto personal v1](https://github.com/user-attachments/assets/5512708d-4c8d-4444-aae9-58ea2f03ca90)
