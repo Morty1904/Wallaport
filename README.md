@@ -1,4 +1,4 @@
-# Wallaport (Provisional Name)
+# Wallaport
 
 ## Summary
 
@@ -49,3 +49,7 @@ Create a backend system that allows managing users, products, and messages, prov
 ## Development Methodology
 
 This project will be developed in iterative stages, focusing on the progressive delivery of complete functionalities.
+
+## UML
+
+![UML proyecto personal v1](https://github.com/user-attachments/assets/5512708d-4c8d-4444-aae9-58ea2f03ca90)
