@@ -1,18 +1,41 @@
+// Login.java
 package com.example.vista;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.Base64;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
+
+import com.example.services.UserService;
 
 public class Login extends JFrame {
 
-    public Login() {
+    private final UserService userService;
+
+    public Login(ApplicationContext context) {
+        // Inicializar el servicio desde el contexto de Spring
+        this.userService = context.getBean(UserService.class);
+
         // Configuración del JFrame
         setTitle("Custom JFrame");
         setSize(600, 400);
@@ -27,7 +50,8 @@ public class Login extends JFrame {
         leftPanel.setPreferredSize(new Dimension(250, 0));
 
         // Imagen personalizada
-        ImageIcon logoIcon = new ImageIcon("C:/Users/oscar/OneDrive/Documentos/ProyectoGames/Wallaport/demo/src/main/java/com/example/Img/fotonduro.png");
+        ImageIcon logoIcon = new ImageIcon(
+                "C:/Users/oscar/OneDrive/Documentos/ProyectoGames/Wallaport/demo/src/main/java/com/example/Img/fotonduro.png");
         JLabel logoLabel = new JLabel();
         logoLabel.setIcon(new ImageIcon(logoIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -52,13 +76,6 @@ public class Login extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Icono de candado
-        JLabel lockIconLabel = new JLabel(new ImageIcon("C:/Users/oscar/OneDrive/Documentos/ProyectoGames/Wallaport/demo/src/main/java/com/example/Img/iniciar.png"));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        rightPanel.add(lockIconLabel, gbc);
-
         // Etiqueta y campo de texto para correo
         JLabel emailLabel = new JLabel("Correo Electrónico:");
         emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -74,7 +91,7 @@ public class Login extends JFrame {
         rightPanel.add(emailField, gbc);
 
         // Etiqueta y campo de texto para contraseña
-        JLabel passwordLabel = new JLabel("Password:");
+        JLabel passwordLabel = new JLabel("Contraseña:");
         passwordLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -96,37 +113,25 @@ public class Login extends JFrame {
         gbc.gridwidth = 2;
         rightPanel.add(loginButton, gbc);
 
-        // Acciones del botón
+        // Acción del botón
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             char[] password = passwordField.getPassword();
 
+            if (email.isEmpty() || password.length == 0) {
+                JOptionPane.showMessageDialog(null, "Por favor, ingrese el correo y la contraseña.");
+                return;
+            }
+
             try {
-                String url = "http://localhost:8080/user"; // Endpoint protegido
+                boolean isAuthenticated = userService.authenticateUser(email, new String(password));
 
-                // Codificación en Base64 del formato usuario:contraseña
-                String auth = email + ":" + new String(password);
-                String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
-
-                // Crear los encabezados HTTP con Basic Auth
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Authorization", "Basic " + encodedAuth);
-
-                // Crear la entidad HTTP con los encabezados
-                HttpEntity<String> entity = new HttpEntity<>(headers);
-
-                // Crear una instancia de RestTemplate
-                RestTemplate restTemplate = new RestTemplate();
-
-                // Enviar la solicitud GET
-                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-                // Verificar la respuesta
-                if (response.getStatusCode().is2xxSuccessful()) {
+                if (isAuthenticated) {
                     JOptionPane.showMessageDialog(null, "¡Bienvenido!");
                 } else {
                     JOptionPane.showMessageDialog(null, "Correo o contraseña incorrectos.");
                 }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Error al conectar con el servidor.");
@@ -138,9 +143,15 @@ public class Login extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Inicializa Spring Boot y su contexto
+        ApplicationContext context = SpringApplication.run(Application.class, args);
+    
+        // Obtén el UserService directamente del contexto de Spring
+        UserService userService = context.getBean(UserService.class);
+    
+        // Ejecuta el JFrame utilizando SwingUtilities
         SwingUtilities.invokeLater(() -> {
-            Login frame = new Login();
+            Login frame = new Login(userService);
             frame.setVisible(true);
         });
     }
-}
